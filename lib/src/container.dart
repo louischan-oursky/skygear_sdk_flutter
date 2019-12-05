@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:meta/meta.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:uni_links/uni_links.dart';
 
 import 'client.dart';
 import 'cookie.dart';
@@ -42,6 +41,8 @@ class AuthContainer {
   SkygearContainer _parent;
   SkygearContainer get parent => _parent;
 
+  String _codeVerifier;
+
   AuthContainer(this._parent);
 
   Future<User> login(String loginId, String password,
@@ -63,12 +64,12 @@ class AuthContainer {
     return p.then((resp) => resp.user);
   }
 
-  Future<User> loginOAuthProvider(
+  Future<void> loginOAuthProvider(
       {@required String providerId,
       @required String callbackUrl,
       String onUserDuplicate}) async {
-    final codeVerifier = generateCodeVerifier();
-    final codeChallenge = computeCodeChallenge(codeVerifier);
+    _codeVerifier = generateCodeVerifier();
+    final codeChallenge = computeCodeChallenge(_codeVerifier);
     final url = await _parent._apiClient.oauthAuthorizationURL(
         providerId: providerId,
         codeChallenge: codeChallenge,
@@ -80,8 +81,10 @@ class AuthContainer {
         forceWebView: false,
         enableJavaScript: true,
         enableDomStorage: true);
-    final returnUrl = await getUriLinksStream().first;
-    final result = returnUrl.queryParameters["x-skygear-result"];
+  }
+
+  Future<User> handleRedirectUri(Uri uri) async {
+    final result = uri.queryParameters["x-skygear-result"];
     final j = jsonDecode(utf8.decode(base64Decode(result)));
     if (j["result"]["error"] != null) {
       throw decodeError(j["result"]["error"]);
@@ -89,7 +92,7 @@ class AuthContainer {
     final authorizationCode = j["result"]["result"] as String;
     final authResponse = await _parent._apiClient.getOAuthResult(
       authorizationCode: authorizationCode,
-      codeVerifier: codeVerifier,
+      codeVerifier: _codeVerifier,
     );
     return _handleAuthResponse(Future.value(authResponse));
   }
