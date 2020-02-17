@@ -59,6 +59,10 @@ class AuthContainer {
     await _parent._apiClient.logout();
   }
 
+  Future<void> requestForgotPasswordEmail(String email) async {
+    await _parent._apiClient.requestForgotPasswordEmail(email);
+  }
+
   Future<User> _handleAuthResponse(Future<AuthResponse> p) async {
     // TODO: persist auth response
     return p.then((resp) => resp.user);

@@ -152,6 +152,14 @@ class ApiClient {
         data: {}, options: Options(method: "POST"));
   }
 
+  Future<void> requestForgotPasswordEmail(String email) async {
+    final data = {
+      "email": email,
+    };
+    await _skygearRequest("/_auth/forgot_password",
+        data: data, options: Options(method: "POST"));
+  }
+
   Future<String> oauthAuthorizationURL({
     @required String providerId,
     @required String codeChallenge,
