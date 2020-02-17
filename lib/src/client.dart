@@ -6,7 +6,6 @@ import 'package:meta/meta.dart';
 import 'error.dart';
 import 'cookie.dart' show CookieStore, NaiveCookieStore, httpHeaderCookie;
 import 'types.dart';
-import 'url.dart';
 
 String _removeTrailingSlash(String s) {
   return s.replaceAll(RegExp(r'/+$'), '');
@@ -151,6 +150,14 @@ class ApiClient {
   Future<void> logout() async {
     await _skygearRequest("/_auth/logout",
         data: {}, options: Options(method: "POST"));
+  }
+
+  Future<void> requestForgotPasswordEmail(String email) async {
+    final data = {
+      "email": email,
+    };
+    await _skygearRequest("/_auth/forgot_password",
+        data: data, options: Options(method: "POST"));
   }
 
   Future<String> oauthAuthorizationURL({
