@@ -6,7 +6,6 @@ import 'package:meta/meta.dart';
 import 'error.dart';
 import 'cookie.dart' show CookieStore, NaiveCookieStore, httpHeaderCookie;
 import 'types.dart';
-import 'url.dart';
 
 String _removeTrailingSlash(String s) {
   return s.replaceAll(RegExp(r'/+$'), '');
