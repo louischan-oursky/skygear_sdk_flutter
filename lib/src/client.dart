@@ -47,27 +47,27 @@ class CookieInterceptor extends Interceptor {
 class ApiClient {
   String apiKey;
   String _endpoint;
-  final Dio _dio;
+  final Dio dio;
   final CookieStore _cookieStore;
 
   ApiClient({this.apiKey = "", String endpoint = "", CookieStore cookieStore})
       : _endpoint = _removeTrailingSlash(endpoint),
-        _dio = Dio(),
+        dio = Dio(),
         _cookieStore = cookieStore ?? NaiveCookieStore() {
-    _dio.interceptors
+    dio.interceptors
       ..add(InterceptorsWrapper(
         onRequest: (RequestOptions options) {
           options.headers["x-skygear-api-key"] = apiKey;
         },
       ))
       ..add(CookieInterceptor(_cookieStore));
-    _dio.options.baseUrl = endpoint;
+    dio.options.baseUrl = endpoint;
   }
 
   String get endpoint => _endpoint;
   set endpoint(String v) {
     _endpoint = _removeTrailingSlash(v);
-    _dio.options.baseUrl = _endpoint;
+    dio.options.baseUrl = _endpoint;
   }
 
   Future<Response<T>> request<T>(
@@ -79,7 +79,7 @@ class ApiClient {
     ProgressCallback onSendProgress,
     ProgressCallback onReceiveProgress,
   }) async {
-    return _dio.request(
+    return dio.request(
       path,
       data: data,
       queryParameters: queryParameters,
